@@ -18,55 +18,51 @@ This project is a simple UNIX-like shell created for learning purposes. The shel
 - **MAX_INPUT Warning**: Initially, there was a conflict due to a predefined `MAX_INPUT` in system headers. This was resolved by renaming it to `INPUT_SIZE`.
 - **Error Handling**: Basic error messages are displayed if commands fail or if the `fork()` system call does not work as expected.
 
-## Custom UNIX Shell - Version 02
+### Limitations
 
-This project is a custom UNIX-like shell created as a learning exercise to understand UNIX system calls, command redirection, and piping. This version adds functionality for input/output redirection (`<` and `>`) and pipes (`|`).
+- **No Redirection Support**: Version 01 does not support input/output redirection (e.g., using `<` or `>` symbols).
+- **No Piping Functionality**: This version does not handle pipes (e.g., commands with `|`), so commands cannot be chained.
+- **Basic Error Handling**: Limited error handling is available, which may not cover all edge cases in command execution failures.
 
-### Features Implemented (Version 02)
+### Acknowledgments
 
-- **Custom Prompt**: Shows the current working directory as the prompt, labeled as `PUCITshell`.
-- **Basic Command Execution**: Supports running standard UNIX commands (e.g., `ls`, `pwd`, `echo`).
-- **Input/Output Redirection**:
-  - `<` for redirecting input from a file.
-  - `>` for redirecting output to a file.
-  - Example: `cat < infile.txt > outfile.txt`
-- **Pipes**:
-  - Allows chaining commands so that the output of one command becomes the input of another.
-  - Example: `ls | wc -l`
+This project was developed with assistance from the following resources:
+- **Arif Butt**: My instructor, who provided valuable guidance on UNIX system programming concepts. GitHub Profile: [Arif Butt](https://github.com/arifpucit)
+- UNIX system programming guides and online documentation for system calls.
 
-### Known Issues and Errors
 
-- **Commands like `grep` and `wc` in pipes**: When using commands like `grep` and `wc` with pipes, some combinations may not work correctly. For example, `cat input.txt | wc -w` might encounter issues in this shell. This is a known limitation, and further debugging is needed to fully support these commands in complex pipelines.
-- **Error Messages**: Basic error handling is in place, showing messages if a command fails to execute or if a file can’t be opened.
+## My Custom Shell - Version 02
+
+This project is a simple UNIX-like shell created for learning purposes. The shell is built with extended functionalities using system calls in C, including support for input/output redirection and piping.
+
+### Features Implemented
+
+- **Custom Prompt**: Displays the current working directory as the prompt, labeled as `PUCITshell`.
+- **Basic Command Execution**: Supports executing standard UNIX commands entered by the user, such as `ls`, `pwd`, and `echo`.
+- **Input and Output Redirection**:
+  - Supports `<` for redirecting input from a file and `>` for redirecting output to a file.
+  - Example: `cat < input.txt > output.txt` reads from `input.txt` and writes to `output.txt`.
+- **Piping**:
+  - Allows chaining commands using `|` so that the output of one command becomes the input of another.
+  - Example: `ls | wc -l` lists files in the directory and counts them.
+- **Exit Condition**: Exits the shell when `CTRL+D` is pressed.
 
 ### File Structure
 
-- `shell_v2.c`: Contains all the code for Version 02, handling the main shell loop, input parsing, command execution, redirection, and piping.
+- `shell_v2.c`: This file contains all the code for Version 02 of the shell, including displaying the prompt, parsing input, handling redirection, and implementing piping.
 
+### Known Issues and Limitations
 
-### Testing Commands
+- **Single Pipe Limitation**: Currently, the shell supports only a single `|` in commands. Chaining multiple pipes (e.g., `ls | grep txt | wc -l`) is not yet implemented.
+- **Error Handling**: Basic error handling is in place for command execution failures and file opening errors, but there may still be scenarios where error messages are limited or less informative.
+- **Fixed Redirection and Pipe Handling Issue**: An earlier issue caused the shell to hang when using pipe commands like `cat /etc/passwd | wc`. This was resolved by ensuring that all unused file descriptors are closed properly in both child and parent processes.
 
-Here are some sample commands to test the shell's functionality:
+### Acknowledgments
 
-1. **Basic Commands**:
-   - `ls`
-   - `echo "Hello, World"`
+This project was developed with assistance from the following resources:
+- **Arif Butt**: My instructor, who provided valuable guidance on UNIX system programming concepts. GitHub Profile: [Arif Butt](https://github.com/arifpucit)
+- **ChatGPT by OpenAI**: Assisted in implementing and troubleshooting various aspects of the shell, specifically for managing `execvp`, `fork`, `wait`, `dup2`, and pipe handling in C.
+- UNIX system programming guides and online documentation for system calls.
 
-2. **Input Redirection**:
-   - `cat < input.txt` (reads from `input.txt` and displays content)
-
-3. **Output Redirection**:
-   - `echo "Testing output" > output.txt` (writes "Testing output" to `output.txt`)
-
-4. **Combined Input and Output Redirection**:
-   - `cat < input.txt > output_copy.txt` (copies content from `input.txt` to `output_copy.txt`)
-
-5. **Simple Pipe**:
-   - `ls | wc -l` (counts files in the directory)
-   
-6. **Complex Pipe**:
-   - `cat input.txt | grep sample | wc -l` (finds lines containing "sample" in `input.txt` and counts them)
-   
-**Note**: Some commands like `grep` and `wc` may have issues when used in pipelines, especially in combination. This is a known limitation.
 
 
