@@ -145,3 +145,48 @@ This project was developed with guidance and support from:
 - **ChatGPT by OpenAI**: Assisted in structuring the code, resolving challenges with `readline`, and implementing the custom history system.
 - UNIX system programming guides and online documentation for system calls.
 
+## My Custom Shell - Version 05
+This project is a UNIX-like shell created for educational purposes, featuring background process management, built-in command handling, and command history. The shell is developed in C, using system calls and the readline library, with a focus on implementing core shell functionalities.
+
+### Features Implemented
+
+- **Custom Prompt**: Displays the current working directory as the prompt, labeled as PUCITshell.
+- **Command Execution**: Supports executing standard UNIX commands, such as ls, pwd, echo, and more.
+
+- **Built-in Commands**:
+cd <path>: Changes the current directory to the specified path.
+exit: Exits the shell gracefully.
+jobs: Lists active background jobs, displaying their PIDs and commands.
+kill <PID>: Terminates a background job by its PID.
+help: Displays information about available built-in commands and their syntax.
+-**Background Process Management**:
+Run processes in the background using & at the end of a command (e.g., sleep 10 &).
+View background jobs using the jobs command, which displays job numbers, PIDs, and commands.
+Terminate background jobs using the kill <PID> command.
+-**Custom Command History**:
+Maintains a history of the last 10 commands.
+Saves command history to .myshell_history, enabling persistence across sessions.
+Supports using the up and down arrow keys to navigate through the last 10 commands in the history.
+-**Exit Condition**: Exits the shell gracefully when CTRL+D is pressed.
+  
+### File Structure
+-**shell_v5.c**: Contains the complete code for Version 05, including:
+Displaying the prompt.
+Parsing input and executing commands.
+Managing background jobs.
+Implementing built-in commands such as cd, jobs, kill, and help.
+Custom history management with up/down arrow navigation and persistence.
+Known Issues and Errors
+- **History Limit**: The custom history only keeps track of the last 10 commands. New commands overwrite the oldest entries in memory and in .myshell_history.
+- **Error Handling**: Basic error messages are displayed if commands fail or if the fork() system call does not work. Limited handling for specific errors, such as command syntax issues.
+
+### Limitations
+- **Single History File**: Only one .myshell_history file is used, maintaining only the last 10 commands. Commands exceeding this limit will overwrite older entries.
+- **Basic Error Handling**: While errors are handled for command execution failures, edge cases and complex errors may not be fully addressed.
+- **Limited Command Functionality**: While background processes and basic built-in commands are implemented, advanced features like input/output redirection (e.g., <, >) and piping (|) are not supported in this version.
+### Acknowledgments
+This project was developed with guidance and support from:
+
+- **Arif Butt**: My instructor, who provided valuable insights into UNIX system programming concepts. GitHub Profile: Arif Butt
+- **ChatGPT by OpenAI**: Assisted in structuring the code, resolving challenges with readline, and implementing the custom background process and command history management.
+UNIX system programming guides and online documentation for system calls.
