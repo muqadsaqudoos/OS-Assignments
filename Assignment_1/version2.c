@@ -5,11 +5,12 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <limits.h>
-#include <sys/types.h>    // For pid_t
-#include <errno.h>        // For error handling functions
+#include <sys/types.h>
+#include <errno.h>
 
 #define INPUT_SIZE 1024
 
+// Function to display the shell prompt
 void display_prompt() {
     char cwd[PATH_MAX];
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
@@ -19,6 +20,7 @@ void display_prompt() {
     }
 }
 
+// Function to execute commands with optional redirection and piping
 void execute_command(char *input) {
     char *args[20];
     int i = 0;
@@ -27,16 +29,28 @@ void execute_command(char *input) {
         args[++i] = strtok(NULL, " \n");
     }
 
+    if (args[0] == NULL) {
+        return; // No command entered
+    }
+
     int in_redirect = -1, out_redirect = -1;
     char *input_file = NULL;
     char *output_file = NULL;
 
-    // Check for redirection symbols
+    // Check for redirection symbols and handle errors
     for (int j = 0; args[j] != NULL; j++) {
         if (strcmp(args[j], "<") == 0) {
+            if (args[j + 1] == NULL) {
+                fprintf(stderr, "Expected input file after '<'\n");
+                return;
+            }
             input_file = args[j + 1];
             args[j] = NULL;
         } else if (strcmp(args[j], ">") == 0) {
+            if (args[j + 1] == NULL) {
+                fprintf(stderr, "Expected output file after '>'\n");
+                return;
+            }
             output_file = args[j + 1];
             args[j] = NULL;
         }
@@ -73,6 +87,7 @@ void execute_command(char *input) {
     }
 
     if (pipe_present) {
+        // Handle pipe operations
         pid_t pid1 = fork();
         if (pid1 < 0) {
             perror("Fork failed for first command");
