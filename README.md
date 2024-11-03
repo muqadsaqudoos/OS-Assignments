@@ -1,192 +1,160 @@
-#OS ASSIGNMENT 1
-## My Custom Shell - Version 01
+# OS Assignment 1
 
-This project is a simple UNIX-like shell created for learning purposes. The shell is built with basic functionalities using system calls in C.
+## My Custom Shell - A UNIX-like Command Line Interface
 
-### Features Implemented
+This project is a UNIX-like shell developed as an assignment for an Operating Systems course. The shell was progressively enhanced through multiple versions, each adding new functionality and capabilities using C and UNIX system calls.
 
-- **Custom Prompt**: Displays the current working directory as the prompt, labeled as `PUCITshell`.
-- **Command Execution**: Supports executing UNIX commands entered by the user.
-- **Exit Condition**: Exits the shell when `CTRL+D` is pressed.
+### Table of Contents
+- [Overview](#overview)
+- [File Structure](#file-structure)
+- [Features by Version](#features-by-version)
+  - [Version 01](#version-01)
+  - [Version 02](#version-02)
+  - [Version 03](#version-03)
+  - [Version 04](#version-04)
+  - [Version 05](#version-05)
+  - [Version 06](#version-06)
+- [Known Issues and Limitations](#known-issues-and-limitations)
+- [Acknowledgments](#acknowledgments)
 
-### File Structure
+---
 
-- `shell_v1.c`: This file contains all the code for Version 01 of the shell, including displaying the prompt, parsing input, and executing commands.
+## Overview
 
-### Known Issues and Errors
+This project is a custom shell developed in C using UNIX system calls. Starting with a basic shell prompt, each version builds upon the last by introducing features like command execution, redirection, background processing, and variable management. This incremental approach allowed for systematic learning and enhancement of the shell's functionality.
 
-- **MAX_INPUT Warning**: Initially, there was a conflict due to a predefined `MAX_INPUT` in system headers. This was resolved by renaming it to `INPUT_SIZE`.
-- **Error Handling**: Basic error messages are displayed if commands fail or if the `fork()` system call does not work as expected.
+## File Structure
 
-### Limitations
+- **`shell_v1.c`**: Contains the code for Version 01, covering basic prompt display and command execution.
+- **`shell_v2.c`**: Contains the code for Version 02, adding input/output redirection and piping functionality.
+- **`shell_v3.c`**: Contains the code for Version 03, introducing background command execution.
+- **`shell_v4.c`**: Contains the code for Version 04, implementing custom command history with navigation and repetition.
+- **`shell_v5.c`**: Contains the code for Version 05, incorporating built-in commands and background job management.
+- **`shell_v6.c`**: Contains the code for Version 06, adding user-defined variables and environment variable management.
+- **`.myshell_history`**: Stores the last 10 commands, enabling persistence of command history across sessions.
+- **`README.md`**: This README file, providing an overview of the project, features, and known issues.
 
-- **No Redirection Support**: Version 01 does not support input/output redirection (e.g., using `<` or `>` symbols).
-- **No Piping Functionality**: This version does not handle pipes (e.g., commands with `|`), so commands cannot be chained.
-- **Basic Error Handling**: Limited error handling is available, which may not cover all edge cases in command execution failures.
+## Features by Version
 
-### Acknowledgments
+### Version 01
 
-This project was developed with assistance from the following resources:
-- **Arif Butt**: My instructor, who provided valuable guidance on UNIX system programming concepts. GitHub Profile: [Arif Butt](https://github.com/arifpucit)
-- UNIX system programming guides and online documentation for system calls.
-
-
-## My Custom Shell - Version 02
-
-This project is a simple UNIX-like shell created for learning purposes. The shell is built with extended functionalities using system calls in C, including support for input/output redirection and piping.
-
-### Features Implemented
-
-- **Custom Prompt**: Displays the current working directory as the prompt, labeled as `PUCITshell`.
+**Features:**
+- **Custom Prompt**: Displays the current working directory as `PUCITshell@<directory>:-`, providing a visual indicator of the current location.
 - **Basic Command Execution**: Supports executing standard UNIX commands entered by the user, such as `ls`, `pwd`, and `echo`.
+- **Exit Condition**: Allows users to exit the shell by pressing `CTRL+D`.
+
+**Known Issues:**
+- **No Redirection or Piping**: Input/output redirection (e.g., `<`, `>`) and piping (e.g., `|`) are not implemented in this version.
+- **Error Handling**: Basic error messages are displayed if commands fail or if system calls like `fork()` do not execute successfully.
+
+---
+
+### Version 02
+
+**Features:**
+- **Custom Prompt**: Same as in Version 01.
+- **Command Execution**: Supports executing standard UNIX commands entered by the user.
 - **Input and Output Redirection**:
-  - Supports `<` for redirecting input from a file and `>` for redirecting output to a file.
+  - Supports `<` for input redirection from a file and `>` for output redirection to a file.
   - Example: `cat < input.txt > output.txt` reads from `input.txt` and writes to `output.txt`.
-- **Piping**:
-  - Allows chaining commands using `|` so that the output of one command becomes the input of another.
+- **Piping**: Allows command chaining with a single pipe (`|`), where the output of one command serves as input to another.
   - Example: `ls | wc -l` lists files in the directory and counts them.
-- **Exit Condition**: Exits the shell when `CTRL+D` is pressed.
+- **Exit Condition**: Same as in Version 01.
 
-### File Structure
+**Known Issues:**
+- **Single Pipe Limitation**: Only a single `|` is supported. Multi-piping (e.g., `ls | grep txt | wc -l`) is not yet implemented.
+- **File Descriptor Management**: Properly closes unused file descriptors to avoid resource leaks and system hang-ups, but advanced cases may not be handled.
 
-- `shell_v2.c`: This file contains all the code for Version 02 of the shell, including displaying the prompt, parsing input, handling redirection, and implementing piping.
+---
 
-### Known Issues and Limitations
+### Version 03
 
-- **Single Pipe Limitation**: Currently, the shell supports only a single `|` in commands. Chaining multiple pipes (e.g., `ls | grep txt | wc -l`) is not yet implemented.
-- **Error Handling**: Basic error handling is in place for command execution failures and file opening errors, but there may still be scenarios where error messages are limited or less informative.
-- **Fixed Redirection and Pipe Handling Issue**: An earlier issue caused the shell to hang when using pipe commands like `cat /etc/passwd | wc`. This was resolved by ensuring that all unused file descriptors are closed properly in both child and parent processes.
+**Features:**
+- **Background Command Execution**: Commands can be run in the background by appending `&` to the end of a command.
+  - Example: `find / -name file.txt &` will execute `find` in the background, allowing the user to continue using the shell.
+- **Process IDs for Background Jobs**: Background jobs display their process IDs (PIDs) in the format `[1] PID`, making it easy to identify running processes.
 
-### Acknowledgments
+**Known Issues:**
+- **Limited Background Job Management**: Basic background processing is supported, but more advanced job control features, such as `fg` (foreground) and `bg` (background), are not implemented.
 
-This project was developed with assistance from the following resources:
-- **Arif Butt**: My instructor, who provided valuable guidance on UNIX system programming concepts. GitHub Profile: [Arif Butt](https://github.com/arifpucit)
-- **ChatGPT by OpenAI**: Assisted in implementing and troubleshooting various aspects of the shell, specifically for managing `execvp`, `fork`, `wait`, `dup2`, and pipe handling in C.
-- UNIX system programming guides and online documentation for system calls.
+---
 
-## My Custom Shell - Version 03
+### Version 04
 
-This project is a simple UNIX-like shell created for learning purposes. The shell is built with advanced functionalities using system calls in C, including support for input/output redirection, piping, and background command execution.
-
-### Features Implemented
-
-- **Custom Prompt**: Displays the current working directory as the prompt, labeled as `PUCITshell`.
-- **Basic Command Execution**: Supports executing standard UNIX commands entered by the user, such as `ls`, `pwd`, and `echo`.
-- **Input and Output Redirection**:
-  - Supports `<` for redirecting input from a file and `>` for redirecting output to a file.
-  - Example: `cat < input.txt > output.txt` reads from `input.txt` and writes to `output.txt`.
-- **Piping**:
-  - Allows chaining commands using `|` so that the output of one command becomes the input of another.
-  - Example: `ls | wc -l` lists files in the directory and counts them.
-- **Background Command Execution**:
-  - Supports running commands in the background by appending `&` at the end of the command.
-  - Example: `find / -name f1.txt &` starts the `find` command in the background, allowing the user to continue using the shell immediately.
-  - Background process IDs are displayed in the format `[1] PID`.
-- **Exit Condition**: Exits the shell when `CTRL+D` is pressed.
-
-### File Structure
-
-- `shell_v3.c`: This file contains all the code for Version 03 of the shell, including displaying the prompt, parsing input, handling redirection, implementing piping, and supporting background command execution.
-
-### Known Issues and Limitations
-
-- **Single Pipe Limitation**: Currently, the shell supports only a single `|` in commands. Chaining multiple pipes (e.g., `ls | grep txt | wc -l`) is not yet implemented.
-- **Limited Background Job Management**: Background processes are supported, but there is no comprehensive job management system. Only a basic `[1] PID` display is provided, and job control commands like `fg` and `bg` are not implemented.
-- **Error Handling**: Basic error handling is in place for command execution failures, file opening errors, and redirection, but there may still be scenarios where error messages are limited or less informative.
-
-### Acknowledgments
-
-This project was developed with assistance from the following resources:
-- **Arif Butt**: My instructor, who provided valuable guidance on UNIX system programming concepts. GitHub Profile: [Arif Butt](https://github.com/arifpucit)
-- **ChatGPT by OpenAI**: Assisted in implementing and troubleshooting various aspects of the shell, specifically for managing `execvp`, `fork`, `wait`, `dup2`, signal handling, and pipe handling in C.
-- UNIX system programming guides and online documentation for system calls.
-
-## My Custom Shell - Version 04
-
-This project is a UNIX-like shell created for educational purposes, with features such as limited command history, command repetition using custom syntax, and navigation through the history using up/down arrow keys. The shell is developed in C, using system calls and the `readline` library.
-
-### Features Implemented
-
-- **Custom Prompt**: Displays the current working directory as the prompt, labeled as `PUCITshell`.
-- **Command Execution**: Supports executing standard UNIX commands, such as `ls`, `pwd`, `echo`, and more.
+**Features:**
 - **Custom Command History**:
-  - Maintains a limited history of the last 10 commands.
-  - Saves command history to `.myshell_history`, enabling persistence across sessions.
-  - Up and down arrow keys can be used to navigate through the last 10 commands in the custom history.
+  - Maintains a history of the last 10 commands, accessible by typing `history`.
+  - Saves command history to `.myshell_history`, allowing persistence across sessions.
+  - Up and down arrow keys allow users to navigate through the last 10 commands.
 - **Command Repetition**:
-  - Allows users to repeat previously issued commands using `!number` syntax (e.g., `!1` for the first command).
-  - Supports `!-1` to repeat the last command in the history.
-- **Exit Condition**: Exits the shell gracefully when `CTRL+D` is pressed.
+  - Repeats specific commands using `!number` syntax (e.g., `!1` for the first command in history).
+  - Supports `!-1` to repeat the last command entered.
 
-### File Structure
+**Known Issues:**
+- **History Limit**: Only the last 10 commands are retained. Commands exceeding this limit overwrite the oldest entry in memory and in `.myshell_history`.
+- **Basic Error Handling**: Error messages for command repetition are basic, and advanced cases may not be covered.
 
-- `shell_v4.c`: Contains the complete code for Version 04, including:
-  - Displaying the prompt.
-  - Parsing input and executing commands.
-  - Custom history management with up/down arrow navigation and command repetition.
-  - Tab completion for basic commands.
+---
 
-### Known Issues and Errors
+### Version 05
 
-- **History Limit**: The custom history only keeps track of the last 10 commands. New commands overwrite the oldest entries in memory and in `.myshell_history`.
-- **Error Handling**: Basic error messages are displayed if commands fail or if the `fork()` system call does not work. Limited handling for specific errors, such as command syntax issues.
+**Features:**
+- **Built-in Commands**:
+  - **`cd <path>`**: Changes the current directory to the specified path.
+  - **`exit`**: Exits the shell.
+  - **`jobs`**: Lists active background jobs, showing job numbers, PIDs, and commands.
+  - **`kill <PID>`**: Terminates a background job by its PID.
+  - **`help`**: Lists available built-in commands and their syntax.
+- **Background Job Management**:
+  - Allows users to view active background jobs using the `jobs` command.
+  - Terminate background jobs using `kill <PID>`.
+  - Displays job numbers, PIDs, and commands for each background job.
+- **Custom Command History**: Similar to Version 04, with navigation and repetition of previous commands.
+- **Exit Condition**: Same as in previous versions, allowing graceful exit on `CTRL+D`.
 
-### Limitations
+**Known Issues:**
+- **Error Handling**: Limited error handling is provided for syntax errors in job management commands (e.g., invalid `kill` commands).
+- **Basic Built-in Commands**: Although background job management is introduced, advanced job control (e.g., `fg` and `bg` for job re-assignment) is not implemented.
+- **No Redirection or Piping**: Redirection and piping are not supported in this version.
 
-- **Single History File**: Only one `.myshell_history` file is used, maintaining only the last 10 commands. Commands exceeding this limit will overwrite older entries.
-- **No Redirection or Piping**: Input/output redirection (e.g., `<`, `>`) and pipes (`|`) are not implemented in this version, which limits command chaining functionality.
-- **Basic Error Handling**: While errors are handled for command execution failures, edge cases and complex errors may not be fully addressed.
+---
 
-### Acknowledgments
+### Version 06
 
-This project was developed with guidance and support from:
+**Features:**
+- **User-defined and Environment Variables**:
+  - Allows users to define local shell variables using the syntax `name=value`.
+  - Example: `myvar=hello` creates a variable `myvar` with value `hello`.
+- **Environment Variable Export**:
+  - Supports the `export` command to make local variables available as environment variables.
+  - Example: `export myvar` makes `myvar` accessible as an environment variable.
+- **Variable Expansion**:
+  - Allows accessing the value of defined variables using `$name` syntax in commands.
+  - Example: `echo $myvar` outputs the value of `myvar`.
+- **Unsetting Variables**:
+  - Supports the `unset` command to remove variables from the shell environment.
+  - Example: `unset myvar` deletes the variable `myvar`.
+
+**Known Issues:**
+- **Basic Variable Handling**: Supports simple variables but does not support complex data types or advanced shell variable features.
+- **Exported Variables Persistence**: Exported variables only persist for the shell session; they do not save to the environment permanently.
+
+---
+
+## Known Issues and Limitations
+
+Across all versions, the following limitations apply:
+
+1. **Limited Command Chaining**: Only a single `|` is supported in commands, and chaining multiple pipes (e.g., `ls | grep txt | wc -l`) is not implemented.
+2. **Error Handling**: While basic error handling is present, more informative messages for edge cases and syntax errors are limited.
+3. **History Persistence**: The `.myshell_history` file only stores the last 10 commands, which are overwritten when the limit is exceeded.
+4. **No Advanced Job Control**: Job management commands like `fg` (foreground) and `bg` (background) are not implemented, limiting control over background processes.
+5. **No Multi-level Export**: Exported variables only last for the shell session and are not saved to the environment for future sessions.
+
+## Acknowledgments
+
+This project was developed with the support and guidance of:
 
 - **Arif Butt**: My instructor, who provided valuable insights into UNIX system programming concepts. GitHub Profile: [Arif Butt](https://github.com/arifpucit)
-- **ChatGPT by OpenAI**: Assisted in structuring the code, resolving challenges with `readline`, and implementing the custom history system.
-- UNIX system programming guides and online documentation for system calls.
-
-## My Custom Shell - Version 05
-This project is a UNIX-like shell created for educational purposes, featuring background process management, built-in command handling, and command history. The shell is developed in C, using system calls and the readline library, with a focus on implementing core shell functionalities.
-
-### Features Implemented
-
-- **Custom Prompt**: Displays the current working directory as the prompt, labeled as PUCITshell.
-- **Command Execution**: Supports executing standard UNIX commands, such as ls, pwd, echo, and more.
-
-- **Built-in Commands**:
-cd <path>: Changes the current directory to the specified path.
-exit: Exits the shell gracefully.
-jobs: Lists active background jobs, displaying their PIDs and commands.
-kill <PID>: Terminates a background job by its PID.
-help: Displays information about available built-in commands and their syntax.
--**Background Process Management**:
-Run processes in the background using & at the end of a command (e.g., sleep 10 &).
-View background jobs using the jobs command, which displays job numbers, PIDs, and commands.
-Terminate background jobs using the kill <PID> command.
--**Custom Command History**:
-Maintains a history of the last 10 commands.
-Saves command history to .myshell_history, enabling persistence across sessions.
-Supports using the up and down arrow keys to navigate through the last 10 commands in the history.
--**Exit Condition**: Exits the shell gracefully when CTRL+D is pressed.
-  
-### File Structure
--**shell_v5.c**: Contains the complete code for Version 05, including:
-Displaying the prompt.
-Parsing input and executing commands.
-Managing background jobs.
-Implementing built-in commands such as cd, jobs, kill, and help.
-Custom history management with up/down arrow navigation and persistence.
-Known Issues and Errors
-- **History Limit**: The custom history only keeps track of the last 10 commands. New commands overwrite the oldest entries in memory and in .myshell_history.
-- **Error Handling**: Basic error messages are displayed if commands fail or if the fork() system call does not work. Limited handling for specific errors, such as command syntax issues.
-
-### Limitations
-- **Single History File**: Only one .myshell_history file is used, maintaining only the last 10 commands. Commands exceeding this limit will overwrite older entries.
-- **Basic Error Handling**: While errors are handled for command execution failures, edge cases and complex errors may not be fully addressed.
-- **Limited Command Functionality**: While background processes and basic built-in commands are implemented, advanced features like input/output redirection (e.g., <, >) and piping (|) are not supported in this version.
-### Acknowledgments
-This project was developed with guidance and support from:
-
-- **Arif Butt**: My instructor, who provided valuable insights into UNIX system programming concepts. GitHub Profile: Arif Butt
-- **ChatGPT by OpenAI**: Assisted in structuring the code, resolving challenges with readline, and implementing the custom background process and command history management.
-UNIX system programming guides and online documentation for system calls.
+- **ChatGPT by OpenAI**: Assisted in structuring the code, implementing features like background processing, job management, variable handling, and command repetition, as well as troubleshooting issues with UNIX system calls.
+- **UNIX System Programming Guides
