@@ -70,6 +70,14 @@ void save_history() {
     fclose(file);
 }
 
+// List the last 10 commands from custom history
+void list_history() {
+    printf("Command History:\n");
+    for (int i = 0; i < history_count; i++) {
+        printf("%d: %s\n", i + 1, custom_history[i]);
+    }
+}
+
 // Execute commands, including handling redirection, piping, background execution, and history
 void execute_command(char *input) {
     // Check if input is a history command, like "!number"
@@ -88,6 +96,9 @@ void execute_command(char *input) {
 
         printf("Repeating command: %s\n", custom_history[history_index]);
         input = strdup(custom_history[history_index]);
+    } else if (strcmp(input, "history") == 0) {  // Check for the history command
+        list_history();
+        return;
     } else {
         add_to_custom_history(input);
     }

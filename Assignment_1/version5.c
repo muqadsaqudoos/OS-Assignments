@@ -117,6 +117,13 @@ void kill_job(int job_number) {
     }
 }
 
+void list_history() {
+    printf("Command History:\n");
+    for (int i = 0; i < history_count; i++) {
+        printf("%d: %s\n", i + 1, custom_history[i]);
+    }
+}
+
 void execute_builtin_command(char **args) {
     if (strcmp(args[0], "cd") == 0) {
         if (args[1] == NULL) {
@@ -135,12 +142,15 @@ void execute_builtin_command(char **args) {
         } else {
             kill_job(atoi(args[1]));
         }
+    } else if (strcmp(args[0], "history") == 0) {
+        list_history();
     } else if (strcmp(args[0], "help") == 0) {
         printf("Built-in commands:\n");
         printf("cd <dir> - Change directory\n");
         printf("exit - Exit the shell\n");
         printf("jobs - List background jobs\n");
         printf("kill <job_number> - Kill background job\n");
+        printf("history - Show command history (last 10 commands)\n");
         printf("help - List built-in commands\n");
     }
 }
@@ -148,7 +158,7 @@ void execute_builtin_command(char **args) {
 int is_builtin_command(char *cmd) {
     return strcmp(cmd, "cd") == 0 || strcmp(cmd, "exit") == 0 ||
            strcmp(cmd, "jobs") == 0 || strcmp(cmd, "kill") == 0 ||
-           strcmp(cmd, "help") == 0;
+           strcmp(cmd, "history") == 0 || strcmp(cmd, "help") == 0;
 }
 
 void execute_command(char *input) {
