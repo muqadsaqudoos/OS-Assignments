@@ -11,11 +11,12 @@
 
 #define HISTORY_FILE ".myshell_history"
 #define HISTORY_LIMIT 10
+#define INPUT_SIZE 1024
 
-// Custom history array
 char *custom_history[HISTORY_LIMIT];
 int history_count = 0;
 
+// Display the shell prompt with current directory
 void display_prompt() {
     char cwd[PATH_MAX];
     if (getcwd(cwd, sizeof(cwd)) != NULL) {
@@ -36,16 +37,13 @@ void add_to_custom_history(char *command) {
         custom_history[history_count] = strdup(command);
         history_count++;
     } else {
-        // Free the oldest command and shift history
         free(custom_history[0]);
         for (int i = 1; i < HISTORY_LIMIT; i++) {
             custom_history[i - 1] = custom_history[i];
         }
         custom_history[HISTORY_LIMIT - 1] = strdup(command);
     }
-
-    // Add to readline's history for up/down arrow navigation
-    add_history(command);
+    add_history(command);  // Add to readline's history for navigation
 }
 
 // Load custom history from file
@@ -55,7 +53,7 @@ void load_history() {
     
     char line[INPUT_SIZE];
     while (fgets(line, sizeof(line), file) != NULL) {
-        line[strcspn(line, "\n")] = 0;  // Remove newline character
+        line[strcspn(line, "\n")] = 0;
         add_to_custom_history(line);
     }
     fclose(file);
@@ -72,7 +70,7 @@ void save_history() {
     fclose(file);
 }
 
-// Execute commands, including !number for history
+// Execute commands, including handling redirection, piping, background execution, and history
 void execute_command(char *input) {
     // Check if input is a history command, like "!number"
     if (input[0] == '!') {
@@ -96,20 +94,119 @@ void execute_command(char *input) {
 
     char *args[20];
     int i = 0;
+    int in_redirect = -1, out_redirect = -1, background = 0;
+    char *input_file = NULL, *output_file = NULL;
+
+    // Tokenize the input
     args[i] = strtok(input, " \n");
     while (args[i] != NULL) {
+        if (strcmp(args[i], "<") == 0) {
+            args[i] = NULL;
+            input_file = strtok(NULL, " \n");
+        } else if (strcmp(args[i], ">") == 0) {
+            args[i] = NULL;
+            output_file = strtok(NULL, " \n");
+        } else if (strcmp(args[i], "&") == 0) {
+            args[i] = NULL;
+            background = 1;
+            break;
+        }
         args[++i] = strtok(NULL, " \n");
     }
 
-    pid_t pid = fork();
-    if (pid < 0) {
-        perror("Fork failed");
-    } else if (pid == 0) {
-        execvp(args[0], args);
-        perror("Execution failed");
-        exit(1);
-    } else {
-        waitpid(pid, NULL, 0);
+    // Check if command contains a pipe
+    int pipe_present = 0;
+    char *command1[20], *command2[20];
+    int pipefd[2];
+
+    for (int j = 0; args[j] != NULL; j++) {
+        if (strcmp(args[j], "|") == 0) {
+            args[j] = NULL;
+            pipe_present = 1;
+
+            for (int k = 0; k < j; k++) command1[k] = args[k];
+            command1[j] = NULL;
+
+            int l = 0;
+            for (int k = j + 1; args[k] != NULL; k++) command2[l++] = args[k];
+            command2[l] = NULL;
+
+            if (pipe(pipefd) == -1) {
+                perror("Pipe failed");
+                return;
+            }
+            break;
+        }
+    }
+
+    if (pipe_present) {
+        // Handle pipe operations
+        pid_t pid1 = fork();
+        if (pid1 == 0) {
+            if (input_file) {
+                in_redirect = open(input_file, O_RDONLY);
+                dup2(in_redirect, STDIN_FILENO);
+                close(in_redirect);
+            }
+            dup2(pipefd[1], STDOUT_FILENO); // Redirect stdout to pipe write end
+            close(pipefd[0]);
+            close(pipefd[1]);
+            execvp(command1[0], command1);
+            perror("Execution failed for first command");
+            exit(1);
+        }
+
+        pid_t pid2 = fork();
+        if (pid2 == 0) {
+            if (output_file) {
+                out_redirect = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                dup2(out_redirect, STDOUT_FILENO);
+                close(out_redirect);
+            }
+            dup2(pipefd[0], STDIN_FILENO); // Redirect stdin to pipe read end
+            close(pipefd[1]);
+            close(pipefd[0]);
+            execvp(command2[0], command2);
+            perror("Execution failed for second command");
+            exit(1);
+        }
+
+        close(pipefd[0]);
+        close(pipefd[1]);
+        waitpid(pid1, NULL, 0);
+        waitpid(pid2, NULL, 0);
+
+    } else { // No pipe present
+        pid_t pid = fork();
+        if (pid == 0) {
+            if (input_file) {
+                in_redirect = open(input_file, O_RDONLY);
+                if (in_redirect < 0) {
+                    perror("Failed to open input file");
+                    exit(1);
+                }
+                dup2(in_redirect, STDIN_FILENO);
+                close(in_redirect);
+            }
+            if (output_file) {
+                out_redirect = open(output_file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                if (out_redirect < 0) {
+                    perror("Failed to open output file");
+                    exit(1);
+                }
+                dup2(out_redirect, STDOUT_FILENO);
+                close(out_redirect);
+            }
+            execvp(args[0], args);
+            perror("Execution failed");
+            exit(1);
+        } else {
+            if (!background) {
+                waitpid(pid, NULL, 0); // Foreground execution
+            } else {
+                printf("Process [%d] running in background\n", pid); // Background execution
+            }
+        }
     }
 
     if (input[0] == '!') free(input);
